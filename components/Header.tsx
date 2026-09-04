@@ -5,7 +5,7 @@ import headerNavLinks from '@/data/headerNavLinks';
 import Link from './Link';
 import ThemeSwitch from './ThemeSwitch';
 import SearchButton from './SearchButton';
-import VaulDrawer from './DrawerNav';
+import MobileDropdownNav from './DrawerNav';
 import { motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { Terminal, Github, Star } from 'lucide-react';
@@ -103,9 +103,9 @@ const Header = () => {
             <ThemeSwitch />
           </div>
 
-          {/* Mobile Drawer Navigation */}
-          <div className="sm:hidden rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-            <VaulDrawer />
+          {/* Mobile Dropdown Navigation */}
+          <div className="sm:hidden">
+            <MobileDropdownNav />
           </div>
         </div>
       </motion.header>
