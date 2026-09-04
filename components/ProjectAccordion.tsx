@@ -91,13 +91,33 @@ export default function ProjectAccordion({ project }: { project: Project }) {
               </Link>
             )}
             {project.code && (
-              <Link href={project.code} target="_blank" rel="noopener noreferrer">
-                <Badge variant="outline" className="rounded-full flex gap-1.5 px-3 py-1 text-xs transition-all hover:scale-105 hover:bg-accent">
-                  <Github aria-hidden="true" size={13} />
-                  Code
-                  <ExternalLink size={11} className="opacity-70" />
-                </Badge>
-              </Link>
+              <>
+                <Link href={project.code} target="_blank" rel="noopener noreferrer">
+                  <Badge variant="outline" className="rounded-full flex gap-1.5 px-3 py-1 text-xs transition-all hover:scale-105 hover:bg-accent">
+                    <Github aria-hidden="true" size={13} />
+                    Code
+                    <ExternalLink size={11} className="opacity-70" />
+                  </Badge>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleCopyClone}
+                  title="Copy git clone command"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-100/70 dark:bg-neutral-800/70 px-3 py-1 text-xs font-medium text-neutral-600 dark:text-neutral-300 transition-all hover:scale-105 hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80 cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={12} className="text-emerald-500" />
+                      <span className="text-emerald-500 font-semibold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={12} className="opacity-70" />
+                      <span>git clone</span>
+                    </>
+                  )}
+                </button>
+              </>
             )}
             {project.document && (
               <Link href={project.document} target="_blank" rel="noopener noreferrer">

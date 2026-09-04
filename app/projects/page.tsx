@@ -70,12 +70,40 @@ export default function Projects() {
             </motion.div>
           </motion.div>
 
+          {/* Live Metrics Stats Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-2"
+          >
+            {[
+              { label: 'Production Projects', value: '16+', icon: '🚀' },
+              { label: 'Open Source', value: '100%', icon: '⭐' },
+              { label: 'Cloud & IaC Tools', value: '15+', icon: '☁️' },
+              { label: 'DevOps Guides & Q&A', value: '550+', icon: '📚' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="group relative rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/80 dark:bg-neutral-900/80 p-3 sm:p-4 text-center backdrop-blur-xl transition-all duration-300 hover:shadow-md hover:border-blue-500/30"
+              >
+                <div className="text-xl sm:text-2xl mb-1">{stat.icon}</div>
+                <div className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                  {stat.value}
+                </div>
+                <div className="text-[11px] sm:text-xs font-medium text-muted-foreground mt-0.5">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+
           {/* Category Cards */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6"
           >
             {['DevOps', 'Cloud Native', 'Automation'].map((category, index) => (
               <motion.div
