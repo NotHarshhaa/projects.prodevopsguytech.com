@@ -13,7 +13,16 @@ export default function ThemeSwitch() {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    return null; // Jangan render apa pun sampai komponen di-mount
+    return (
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-9 opacity-50 pointer-events-none"
+        aria-label="Toggle theme"
+      >
+        <span className="size-4" />
+      </Button>
+    );
   }
 
   return (

@@ -87,20 +87,34 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                         )}
                         <dl className="whitespace-nowrap text-sm font-medium leading-5">
                           <dt className="sr-only">Name</dt>
-                          <dd className="text-gray-900 dark:text-gray-100">NotHarshhaa</dd>
-                          <dt className="sr-only">GitHub</dt>
+                          <dd className="text-gray-900 dark:text-gray-100">{author.name}</dd>
+                          <dt className="sr-only">Social Link</dt>
                           <dd>
-                            {author.instagram && (
+                            {author.github ? (
                               <Link
-                                href="https://github.com/NotHarshhaa"
+                                href={author.github}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="group/link relative text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors duration-200"
                               >
                                 <span className="relative">
-                                  @NotHarshhaa
+                                  @{author.github.replace('https://github.com/', '')}
                                   <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300"></span>
                                 </span>
                               </Link>
-                            )}
+                            ) : author.twitter ? (
+                              <Link
+                                href={author.twitter}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group/link relative text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors duration-200"
+                              >
+                                <span className="relative">
+                                  @{author.twitter.replace('https://twitter.com/', '').replace('https://x.com/', '')}
+                                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300"></span>
+                                </span>
+                              </Link>
+                            ) : null}
                           </dd>
                         </dl>
                       </div>

@@ -7,61 +7,77 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/components/ui/dialog";
-import { Instagram, Linkedin, Github, MessageSquare } from "lucide-react"; // Import ikon dari lucide-react
+import siteMetadata from "@/data/siteMetadata";
+import { Youtube, Linkedin, Github, Twitter, Mail } from "lucide-react";
 
 export function SocialMediaDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Connect With Me</Button>
+        <Button variant="outline" className="rounded-full">Connect With Me</Button>
       </DialogTrigger>
-      <DialogContent >
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Social Media</DialogTitle>
+          <DialogTitle>Social & Community</DialogTitle>
           <DialogDescription>
-            Connect with me on various social media platforms.
+            Connect with me across platforms, explore open-source projects, and stay updated.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {/* Instagram Button */}
-          <Button
-            variant="outline"
-            className="flex items-center justify-start gap-2"
-            onClick={() => window.open("https://www.instagram.com/yourusername", "_blank")}
-          >
-            <Instagram className="h-4 w-4" /> {/* Ikon Instagram */}
-            Instagram
-          </Button>
+        <div className="grid gap-3 py-4">
+          {siteMetadata.github && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => window.open(siteMetadata.github, "_blank", "noopener,noreferrer")}
+            >
+              <Github className="h-4 w-4" />
+              GitHub
+            </Button>
+          )}
 
-          {/* LinkedIn Button */}
-          <Button
-            variant="outline"
-            className="flex items-center justify-start gap-2"
-            onClick={() => window.open("https://www.linkedin.com/in/yourusername", "_blank")}
-          >
-            <Linkedin className="h-4 w-4" /> {/* Ikon LinkedIn */}
-            LinkedIn
-          </Button>
+          {siteMetadata.linkedin && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => window.open(siteMetadata.linkedin, "_blank", "noopener,noreferrer")}
+            >
+              <Linkedin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              LinkedIn
+            </Button>
+          )}
 
-          {/* GitHub Button */}
-          <Button
-            variant="outline"
-            className="flex items-center justify-start gap-2"
-            onClick={() => window.open("https://github.com/yourusername", "_blank")}
-          >
-            <Github className="h-4 w-4" /> {/* Ikon GitHub */}
-            GitHub
-          </Button>
+          {siteMetadata.youtube && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => window.open(siteMetadata.youtube, "_blank", "noopener,noreferrer")}
+            >
+              <Youtube className="h-4 w-4 text-red-600 dark:text-red-400" />
+              YouTube
+            </Button>
+          )}
 
-          {/* Threads Button */}
-          <Button
-            variant="outline"
-            className="flex items-center justify-start gap-2"
-            onClick={() => window.open("https://threads.net/yourusername", "_blank")}
-          >
-            <MessageSquare className="h-4 w-4" /> {/* Ikon Threads (gunakan ikon pesan sebagai alternatif) */}
-            Threads
-          </Button>
+          {siteMetadata.x && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => window.open(siteMetadata.x, "_blank", "noopener,noreferrer")}
+            >
+              <Twitter className="h-4 w-4 text-sky-500" />
+              X (Twitter)
+            </Button>
+          )}
+
+          {siteMetadata.email && (
+            <Button
+              variant="outline"
+              className="flex items-center justify-start gap-2.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              onClick={() => window.location.href = `mailto:${siteMetadata.email}`}
+            >
+              <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              Email
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

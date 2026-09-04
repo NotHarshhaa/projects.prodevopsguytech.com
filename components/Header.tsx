@@ -125,7 +125,7 @@ const Header = () => {
             <motion.div 
               whileHover={{ scale: 1.05 }} 
               whileTap={{ scale: 0.95 }}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors"
+              className="sm:hidden p-1.5 rounded-lg hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors"
             >
               <VaulDrawer/>
             </motion.div>

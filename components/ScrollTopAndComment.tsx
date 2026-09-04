@@ -1,7 +1,8 @@
 'use client'
 
-import siteMetadata from '@/data/siteMetadata'
 import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowUp } from 'lucide-react'
 
 const ScrollTopAndComment = () => {
   const [show, setShow] = useState(false)
@@ -9,77 +10,79 @@ const ScrollTopAndComment = () => {
 
   useEffect(() => {
     const handleWindowScroll = () => {
-      // Tampilkan tombol jika scroll lebih dari 50px
-      if (window.scrollY > 50) setShow(true)
-      else setShow(false)
-
-      // Hitung persentase scroll
       const scrollTop = window.scrollY
       const windowHeight = window.innerHeight
       const docHeight = document.documentElement.scrollHeight
       const totalScroll = docHeight - windowHeight
-      const percentage = (scrollTop / totalScroll) * 100
-      setScrollPercentage(percentage)
+
+      if (scrollTop > 100) {
+        setShow(true)
+      } else {
+        setShow(false)
+      }
+
+      if (totalScroll > 0) {
+        const percentage = Math.min(100, Math.max(0, (scrollTop / totalScroll) * 100))
+        setScrollPercentage(percentage)
+      }
     }
 
-    window.addEventListener('scroll', handleWindowScroll)
+    window.addEventListener('scroll', handleWindowScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleWindowScroll)
   }, [])
 
   const handleScrollTop = () => {
-    window.scrollTo({ top: 0 })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
-    <div
-      className={`fixed bottom-8 right-8 hidden flex-col gap-3 ${show ? 'md:flex' : 'md:hidden'}`}
-    >
-      {/* Tombol Persentase Scroll */}
-      <div className="relative flex items-center justify-center bg-white dark:bg-black rounded-full">
-        <svg className="h-10 w-10 transform rotate-[-90deg]" viewBox="0 0 36 36">
-          {/* Lingkaran Background */}
-          <circle
-            cx="18"
-            cy="18"
-            r="15.9155"
-            fill="none"
-            className="stroke-gray-200 dark:stroke-gray-700"
-            strokeWidth="2"
-          />
-          {/* Lingkaran Progress */}
-          <circle
-            cx="18"
-            cy="18"
-            r="15.9155"
-            fill="none"
-            className="stroke-gray-500 dark:stroke-gray-400"
-            strokeWidth="2"
-            strokeDasharray="100"
-            strokeDashoffset={100 - scrollPercentage}
-            strokeLinecap="round"
-          />
-        </svg>
-        {/* Teks Persentase */}
-        <span className="absolute text-xs text-gray-500 dark:text-gray-400">
-          {Math.round(scrollPercentage)}%
-        </span>
-      </div>
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 20 }}
+          transition={{ duration: 0.25 }}
+          className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40"
+        >
+          <button
+            type="button"
+            aria-label="Scroll to top"
+            onClick={handleScrollTop}
+            className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200/80 bg-white/90 shadow-md backdrop-blur-md transition-all hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 dark:border-neutral-800/80 dark:bg-neutral-900/90 dark:shadow-neutral-950/40"
+          >
+            {/* SVG Progress Ring */}
+            <svg className="absolute inset-0 h-full w-full -rotate-90 p-0.5" viewBox="0 0 36 36">
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                className="stroke-neutral-200/60 dark:stroke-neutral-800/80"
+                strokeWidth="2.5"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                className="stroke-blue-500 transition-all duration-150 dark:stroke-blue-400"
+                strokeWidth="2.5"
+                strokeDasharray="97.4"
+                strokeDashoffset={97.4 - (scrollPercentage / 100) * 97.4}
+                strokeLinecap="round"
+              />
+            </svg>
 
-      {/* Tombol Scroll to Top */}
-      <button
-        aria-label="Scroll To Top"
-        onClick={handleScrollTop}
-        className="rounded-full bg-gray-200 p-2 text-gray-500 transition-all hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
-      >
-        <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            fillRule="evenodd"
-            d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </button>
-    </div>
+            {/* Inner Icon & Hover Indicator */}
+            <ArrowUp
+              className="h-4 w-4 text-neutral-600 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:text-blue-600 dark:text-neutral-300 dark:group-hover:text-blue-400"
+              strokeWidth={2.5}
+            />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

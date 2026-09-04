@@ -130,7 +130,7 @@ export default function DrawerNav() {
                 className="mt-auto mb-16"
               >
                 <Separator className="my-3" />
-                <MusicPlayer />
+                <MusicPlayer compact={true} />
               </motion.div>
             </motion.div>
           </Drawer.Content>
@@ -170,11 +170,10 @@ function LettersPullUp({
   const isInView = useInView(ref, { once: true });
 
   return (
-    <div className={`flex ${className}`}>
+    <div ref={ref} className={`flex ${className}`}>
       {splittedText.map((current, i) => (
         <motion.div
           key={i}
-          ref={ref}
           variants={pullupVariant}
           initial="initial"
           animate={isInView ? 'animate' : ''}

@@ -31,7 +31,7 @@ export default function ChatPage() {
     const initialMessage: Message = {
       id: "0",
       sender: "bot",
-      text: "Tanyakan padaku sesuatu!",
+      text: "Hi there! Feel free to ask me anything about DevOps, cloud infrastructure, or my projects!",
     };
     setMessages([initialMessage]);
   }, []);
@@ -101,12 +101,13 @@ export default function ChatPage() {
         <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-800 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-5xl md:leading-14">Ask anything</h1>
       </div>
       <div className="mb-4 flex items-center">
-        <p className="flex-1">
-          Kamu bisa menanyakan apa saja soal diriku, mulai dari educational background, experiences, and skills, hingga hobi.
+        <div className="flex-1 text-sm text-neutral-600 dark:text-neutral-400">
+          You can ask anything about my technical background, cloud architecture, projects, or DevOps skills.
           <div className="relative group inline-block">
             <button
               type="button"
               className="ml-2"
+              aria-label="Model information"
             >
               <svg
                 className="w-4 h-4 text-gray-400 hover:text-gray-500"
@@ -125,16 +126,16 @@ export default function ChatPage() {
             </button>
             <div
               id="popover-description"
-              className="absolute z-10 hidden group-hover:block opacity-100 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm w-72 p-3 space-y-2 text-sm text-gray-500 dark:bg-black dark:border-gray-600 dark:text-gray-400"
+              className="absolute z-10 hidden group-hover:block opacity-100 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-md w-72 p-3 space-y-2 text-sm text-gray-600 dark:bg-neutral-900 dark:border-gray-700 dark:text-gray-300"
               role="tooltip"
             >
-              <div className="font-semibold text-gray-900 dark:text-white">RAG Chatbot</div>
+              <div className="font-semibold text-gray-900 dark:text-white">AI Assistant</div>
               <p>
-                Model menggunakan llama 70b yang dilatih dengan data pribadi saya seperti resume dan kepribadian saya sehingga mampu menjawab pertanyaan yang sesuai dengan data yang saya miliki.
+                Powered by an intelligent assistant configured with knowledge of my DevOps projects, architecture guides, and technical experience.
               </p>
             </div>
           </div>
-        </p>
+        </div>
       </div>
 
       {/* Area Chat dengan Scroll */}

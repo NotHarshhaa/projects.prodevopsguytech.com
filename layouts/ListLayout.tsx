@@ -109,9 +109,11 @@ export default function ListLayout({
     <>
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         <div className="space-y-2 pb-6 sm:pb-8 pt-4 sm:pt-6 md:space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-4xl md:leading-[3rem]">
-            {title}
-          </h1>
+          {title && (
+            <h1 className="text-2xl sm:text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-4xl md:leading-[3rem]">
+              {title}
+            </h1>
+          )}
           <div className="relative">
             {/* Search input with creative design */}
             <div className="relative w-full max-w-lg">
@@ -221,7 +223,11 @@ export default function ListLayout({
 
                         {/* Read More Link */}
                         <div className="pt-2 sm:pt-3">
-                          <div className="group/link inline-flex items-center space-x-2">
+                          <Link
+                            href={`/${path}`}
+                            className="group/link inline-flex items-center space-x-2"
+                            aria-label={`Read "${title}"`}
+                          >
                             <span className="relative text-sm md:text-[0.925rem] font-medium text-blue-500 dark:text-blue-400">
                               <span className="relative z-10 group-hover/link:text-transparent group-hover/link:bg-clip-text group-hover/link:bg-gradient-to-r group-hover/link:from-blue-600 group-hover/link:to-purple-600 dark:group-hover/link:from-blue-400 dark:group-hover/link:to-purple-400 transition-all duration-300">
                                 Read more
@@ -249,7 +255,7 @@ export default function ListLayout({
                                 d="M13 7l5 5m0 0l-5 5m5-5H6"
                               />
                             </motion.svg>
-                          </div>
+                          </Link>
                         </div>
                       </div>
                     </div>

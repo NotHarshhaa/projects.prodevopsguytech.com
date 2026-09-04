@@ -26,7 +26,7 @@ const playlistItemVariants = {
   }),
 };
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ compact = false }: { compact?: boolean } = {}) {
   const {
     isPlaying,
     currentSongIndex,
@@ -64,31 +64,25 @@ export default function MusicPlayer() {
     };
   }, []);
 
+  const isCompact = compact || !isDesktop;
   const currentSong = playlist[currentSongIndex];
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const progressBar = e.currentTarget;
-    const rect = progressBar.getBoundingClientRect();
-    const clickPosition = e.clientX - rect.left;
-    const percentage = clickPosition / rect.width;
-    const newTime = percentage * duration;
-    seek(newTime);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    seek(percent * duration);
   };
 
   const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    const progressBar = e.currentTarget;
-    const rect = progressBar.getBoundingClientRect();
-    const dragPosition = e.clientX - rect.left;
-    const percentage = Math.min(Math.max(dragPosition / rect.width, 0), 1);
-    const newTime = percentage * duration;
-    seek(newTime);
+    if (isDragging) {
+      handleProgressClick(e);
+    }
   };
 
   const handleVolumeChange = (value: number[]) => {
@@ -101,11 +95,11 @@ export default function MusicPlayer() {
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         "relative overflow-hidden rounded-xl border border-neutral-200/50 bg-white/80 shadow-sm backdrop-blur-md dark:border-neutral-800/50 dark:bg-neutral-900/80",
-        isDesktop ? "p-6" : "p-2"
+        !isCompact ? "p-6" : "p-2"
       )}
     >
       <div className="relative z-10">
-        {isDesktop ? (
+        {!isCompact ? (
           // Desktop Layout
           <div className="flex gap-6">
             {/* Left Section - Album Art */}
@@ -431,7 +425,7 @@ export default function MusicPlayer() {
         )}
 
         {/* Mobile Playlist */}
-        {!isDesktop && (
+        {isCompact && (
           <AnimatePresence>
             {showPlaylist && (
               <motion.div

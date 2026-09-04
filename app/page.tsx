@@ -12,36 +12,6 @@ import { motion } from 'framer-motion';
 import Tag from '@/components/Tag';
 import { formatDate } from '../lib/utils';
 
-// Add animation keyframes for gradient movement
-if (typeof window !== 'undefined') {
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes gradient-xy {
-      0%, 100% {
-        background-position: 0% 50%;
-        filter: hue-rotate(0deg);
-      }
-      25% {
-        background-position: 100% 50%;
-        filter: hue-rotate(3deg);
-      }
-      50% {
-        background-position: 50% 100%;
-        filter: hue-rotate(-3deg);
-      }
-      75% {
-        background-position: 0% 100%;
-        filter: hue-rotate(0deg);
-      }
-    }
-    .animate-gradient-xy {
-      animation: gradient-xy 15s ease-in-out infinite;
-      background-size: 400% 400%;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 const MAX_POSTS = 3; // Batasi jumlah postingan yang ditampilkan
 
 const fadeInUp = {
@@ -273,7 +243,11 @@ export default function Page() {
 
                       {/* Read More Link */}
                       <div className="pt-3 sm:pt-4">
-                        <div className="group/link inline-flex items-center space-x-2">
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          className="group/link inline-flex items-center space-x-2"
+                          aria-label={`Read "${post.title}"`}
+                        >
                           <span className="relative text-base font-medium text-blue-500 dark:text-blue-400">
                             <span className="relative z-10 group-hover/link:text-transparent group-hover/link:bg-clip-text group-hover/link:bg-gradient-to-r group-hover/link:from-blue-600 group-hover/link:to-purple-600 dark:group-hover/link:from-blue-400 dark:group-hover/link:to-purple-400 transition-all duration-300">
                               Read more
@@ -301,7 +275,7 @@ export default function Page() {
                               d="M13 7l5 5m0 0l-5 5m5-5H6"
                             />
                           </motion.svg>
-                        </div>
+                        </Link>
                       </div>
                     </div>
                   </div>
