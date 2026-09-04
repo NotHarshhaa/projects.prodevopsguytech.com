@@ -265,18 +265,10 @@ export default function ProjectTabs() {
             transition={{ duration: 0.2 }}
             className="space-y-3 sm:space-y-4"
           >
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.slug}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: Math.min(index * 0.05, 0.3),
-                }}
-              >
+            {filteredProjects.map((project) => (
+              <div key={project.slug}>
                 <ProjectAccordion project={project} />
-              </motion.div>
+              </div>
             ))}
           </motion.div>
         ) : (
@@ -289,18 +281,10 @@ export default function ProjectTabs() {
             transition={{ duration: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
-            {filteredProjects.map((project, index) => (
-              <motion.div
-                key={project.slug}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: Math.min(index * 0.05, 0.3),
-                }}
-              >
+            {filteredProjects.map((project) => (
+              <div key={project.slug}>
                 <ProjectCardGrid project={project} />
-              </motion.div>
+              </div>
             ))}
           </motion.div>
         )}

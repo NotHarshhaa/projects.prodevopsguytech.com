@@ -9,7 +9,7 @@ import { Button } from '@/components/components/ui/button'
 
 export default function Projects() {
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl xl:max-w-7xl 2xl:max-w-[1440px] mx-auto">
       <div className="divide-y divide-gray-200 dark:divide-gray-700">
         <div className="relative space-y-6 sm:space-y-8 pb-6 sm:pb-8 pt-4 sm:pt-6">
           {/* Decorative background elements */}
@@ -138,18 +138,9 @@ export default function Projects() {
       </div>
 
       {/* Project Tabs Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className="relative"
-      >
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
-        </div>
+      <div className="relative pt-6">
         <ProjectTabs />
-      </motion.div>
+      </div>
     </div>
   )
 }
