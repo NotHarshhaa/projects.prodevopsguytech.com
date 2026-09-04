@@ -297,7 +297,7 @@ export default function Page() {
                   }}
                   className="w-full px-2 sm:px-4 mt-8 sm:mt-12"
                 >
-                  <Separator animated gradient className="my-8 sm:my-12" />
+                  <Separator className="my-8 sm:my-12" />
                 </motion.div>
               )}
             </motion.div>

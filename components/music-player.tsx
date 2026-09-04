@@ -435,7 +435,7 @@ export default function MusicPlayer({ compact = false }: { compact?: boolean } =
                 transition={{ duration: 0.3 }}
                 className="mt-2"
               >
-                <Separator animated gradient className="mb-2" />
+                <Separator className="mb-2" />
                 <div className="space-y-0.5 max-h-36 overflow-y-auto">
                   {playlist.map((song, index) => (
                     <motion.button

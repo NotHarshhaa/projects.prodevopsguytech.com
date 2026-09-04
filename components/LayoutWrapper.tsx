@@ -51,7 +51,7 @@ const LayoutWrapper = ({ children }: Props) => {
         <div className={`${inter.className} relative flex min-h-screen flex-col justify-between font-sans`}>
           <motion.div variants={childVariants}>
             <Header />
-            <Separator animated gradient className="my-8" />
+            <Separator className="my-8" />
           </motion.div>
           
           <motion.main 
@@ -66,7 +66,7 @@ const LayoutWrapper = ({ children }: Props) => {
             className="relative z-10"
           >
             <div className="absolute inset-x-0 -top-16 h-32 bg-gradient-to-b from-transparent to-white/80 dark:to-neutral-950/80 backdrop-blur-[1px]" />
-            <Separator animated gradient className="mb-8" />
+            <Separator className="mb-8" />
             <Footer />
           </motion.div>
         </div>

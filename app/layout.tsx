@@ -2,7 +2,7 @@ import 'css/tailwind.css';
 import 'pliny/search/algolia.css';
 import 'remark-github-blockquote-alert/alert.css';
 
-import { Space_Grotesk } from 'next/font/google';
+import { Space_Grotesk, Geist } from 'next/font/google';
 // import { Analytics, AnalyticsConfig } from 'pliny/analytics';
 import { CSPostHogProvider } from './providers';
 import { SearchProvider, SearchConfig } from 'pliny/search';
@@ -14,6 +14,9 @@ import { ThemeProviders } from './theme-providers';
 import { Metadata } from 'next';
 import { MusicPlayerProvider } from '@/components/MusicPlayerContext';
 import { Analytics } from "@vercel/analytics/react"
+import { cn } from "@/components/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -67,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang={siteMetadata.language}
-      className={`${space_grotesk.variable} scroll-smooth`}
+      className={cn("scroll-smooth", space_grotesk.variable, "font-sans", geist.variable)}
       suppressHydrationWarning
     >
       <link

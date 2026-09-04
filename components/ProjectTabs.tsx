@@ -54,23 +54,23 @@ export default function ProjectTabs() {
         className="relative mb-4 sm:mb-6"
       >
         <div className="flex justify-center w-full">
-          <TabsList className="relative flex justify-center gap-4 bg-transparent pb-2 dark:bg-transparent inline-flex">
-          {tabTypes.map((type, index) => (
-            <motion.div
-              key={type}
-              variants={tabVariants}
-              whileHover="hover"
-              custom={index}
-            >
-              <TabsTrigger
-                value={type}
-                className="relative rounded-full border border-neutral-200/50 bg-white/50 px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base font-medium text-neutral-600 backdrop-blur-sm transition-all hover:bg-white/80 hover:text-neutral-900 data-[state=active]:border-blue-500/50 data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 dark:border-neutral-800/50 dark:bg-neutral-950/50 dark:text-neutral-400 dark:hover:bg-neutral-900/50 dark:hover:text-neutral-100 dark:data-[state=active]:border-blue-500/50 dark:data-[state=active]:bg-blue-500/10 dark:data-[state=active]:text-blue-400 min-w-[80px] sm:min-w-[100px]"
+          <TabsList className="relative flex flex-wrap justify-center gap-2 sm:gap-4 bg-transparent border-0 p-0 h-auto w-auto">
+            {tabTypes.map((type, index) => (
+              <motion.div
+                key={type}
+                variants={tabVariants}
+                whileHover="hover"
+                custom={index}
               >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </TabsTrigger>
-            </motion.div>
-          ))}
-        </TabsList>
+                <TabsTrigger
+                  value={type}
+                  className="relative rounded-full border border-neutral-200/60 dark:border-neutral-800/60 bg-white/80 dark:bg-neutral-900/80 px-6 sm:px-8 py-2 sm:py-2.5 text-sm sm:text-base font-medium text-neutral-600 dark:text-neutral-400 backdrop-blur-md transition-all duration-300 hover:bg-white dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 shadow-sm hover:shadow data-[state=active]:border-blue-500/50 data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-600 dark:data-[state=active]:border-blue-500/50 dark:data-[state=active]:bg-blue-500/10 dark:data-[state=active]:text-blue-400 data-active:border-blue-500/50 data-active:bg-blue-500/10 data-active:text-blue-600 dark:data-active:border-blue-500/50 dark:data-active:bg-blue-500/10 dark:data-active:text-blue-400 min-w-[80px] sm:min-w-[100px]"
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </TabsTrigger>
+              </motion.div>
+            ))}
+          </TabsList>
         </div>
       </motion.div>
 

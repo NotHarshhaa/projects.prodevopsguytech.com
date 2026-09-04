@@ -1,33 +1,34 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/components/lib/utils"
+import { cn } from "cn"
+import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-2xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default:
-          "bg-gradient-to-br from-neutral-900 to-neutral-800 text-neutral-50 shadow-lg hover:shadow-xl hover:from-neutral-800 hover:to-neutral-900 dark:from-neutral-50 dark:to-neutral-200 dark:text-neutral-900 dark:hover:from-neutral-200 dark:hover:to-neutral-50",
-        destructive:
-          "bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg hover:shadow-xl hover:from-red-500 hover:to-red-600 dark:from-red-800 dark:to-red-700",
+        default: "bg-primary text-primary-foreground hover:bg-primary/80",
         outline:
-          "border-2 border-neutral-200 bg-white/50 backdrop-blur-sm hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950/50 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
+          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30",
         secondary:
-          "bg-gradient-to-br from-neutral-200 to-neutral-100 text-neutral-900 shadow-md hover:shadow-lg hover:from-neutral-100 hover:to-neutral-200 dark:from-neutral-800 dark:to-neutral-700 dark:text-neutral-50",
+          "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "hover:bg-neutral-100/80 hover:text-neutral-900 dark:hover:bg-neutral-800/80 dark:hover:text-neutral-50 backdrop-blur-sm",
-        link:
-          "text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50 hover:text-neutral-600 dark:hover:text-neutral-400",
-        premium:
-          "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400",
+          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+        destructive:
+          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-md px-8 text-base",
-        icon: "h-10 w-10",
+        default:
+          "h-8 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+        xs: "h-6 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-7 gap-1 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        lg: "h-9 gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        icon: "size-8",
+        "icon-xs": "size-6 [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "size-7",
+        "icon-lg": "size-9",
       },
     },
     defaultVariants: {
@@ -37,42 +38,27 @@ const buttonVariants = cva(
   }
 )
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+function Button({
+  className,
+  variant = "default",
+  size = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot.Root : "button"
+
+  return (
+    <Comp
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
 }
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-
-    // Warn in dev if a button is nested inside this one
-    if (
-      process.env.NODE_ENV !== "production" &&
-      !asChild &&
-      React.Children.toArray(props.children).some(
-        (child: any) =>
-          React.isValidElement(child) && child.type === "button"
-      )
-    ) {
-      console.warn(
-        "⚠️ Do not nest a <button> inside another <button>. This will cause hydration errors."
-      )
-    }
-
-    return (
-      <Comp
-        className={cn(
-          buttonVariants({ variant, size, className }),
-          "motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98] motion-safe:transition"
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = "Button"
 
 export { Button, buttonVariants }

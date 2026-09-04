@@ -55,10 +55,11 @@ export default function Projects() {
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition-all duration-500"></div>
               <Button 
+                asChild
                 variant="outline" 
                 className="relative rounded-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm hover:bg-white/50 dark:hover:bg-gray-900/50 border border-gray-200/20 dark:border-gray-700/20 transition-all duration-300"
               >
-                <Link href={siteMetadata.github} className="flex items-center gap-2">
+                <Link href={siteMetadata.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   <FaGithub className="w-5 h-5" />
                   <span className="relative">
                     View on GitHub
