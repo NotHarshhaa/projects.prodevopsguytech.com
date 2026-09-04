@@ -1,78 +1,122 @@
-import { ReactNode } from 'react'
-import Image from '@/components/Image'
-import Bleed from 'pliny/ui/Bleed'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import type { Blog } from 'contentlayer/generated'
-import Comments from '@/components/Comments'
-import Link from '@/components/Link'
-import PageTitle from '@/components/PageTitle'
-import SectionContainer from '@/components/SectionContainer'
-import siteMetadata from '@/data/siteMetadata'
-import ScrollTopAndComment from '@/components/ScrollTopAndComment'
+import { ReactNode } from 'react';
+import Image from '@/components/Image';
+import Bleed from 'pliny/ui/Bleed';
+import { CoreContent } from 'pliny/utils/contentlayer';
+import type { Blog } from 'contentlayer/generated';
+import Comments from '@/components/Comments';
+import Link from '@/components/Link';
+import SectionContainer from '@/components/SectionContainer';
+import siteMetadata from '@/data/siteMetadata';
+import ScrollTopAndComment from '@/components/ScrollTopAndComment';
+import { Calendar, Clock, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/components/ui/button';
+import { formatDate } from 'pliny/utils/formatDate';
 
 interface LayoutProps {
-  content: CoreContent<Blog>
-  children: ReactNode
-  next?: { path: string; title: string }
-  prev?: { path: string; title: string }
+  content: CoreContent<Blog>;
+  children: ReactNode;
+  next?: { path: string; title: string };
+  prev?: { path: string; title: string };
 }
 
-export default function PostMinimal({ content, next, prev, children }: LayoutProps) {
-  const { slug, title, images } = content
+export default function PostBanner({ content, next, prev, children }: LayoutProps) {
+  const { slug, title, images, date, readingTime } = content;
   const displayImage =
-    images && images.length > 0 ? images[0] : 'https://picsum.photos/seed/picsum/800/400'
+    images && images.length > 0 ? images[0] : 'https://picsum.photos/seed/picsum/1200/600';
 
   return (
     <SectionContainer>
       <ScrollTopAndComment />
-      <article>
-        <div>
-          <div className="space-y-1 pb-10 text-center dark:border-gray-700">
-            <div className="w-full">
-              <Bleed>
-                <div className="relative aspect-[2/1] w-full">
-                  <Image src={displayImage} alt={title} fill className="object-cover" />
-                </div>
-              </Bleed>
-            </div>
-            <div className="relative pt-10">
-              <PageTitle>{title}</PageTitle>
+      <article className="mx-auto w-full max-w-4xl xl:max-w-6xl 2xl:max-w-7xl py-4 sm:py-6">
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center justify-between pb-6 border-b border-neutral-200/60 dark:border-neutral-800/60 text-xs text-muted-foreground">
+          <nav className="flex items-center gap-1.5">
+            <Link href="/" className="hover:text-foreground">Home</Link>
+            <ChevronRight size={13} className="opacity-50" />
+            <Link href="/blog" className="hover:text-foreground">DevOps Guides</Link>
+            <ChevronRight size={13} className="opacity-50" />
+            <span className="text-foreground font-medium line-clamp-1 max-w-[200px]">{title}</span>
+          </nav>
+          <Button asChild variant="ghost" size="sm" className="h-8 px-2.5 rounded-xl text-xs">
+            <Link href="/blog" className="flex items-center gap-1.5">
+              <ArrowLeft size={13} />
+              <span>All Guides</span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Banner Hero */}
+        <div className="py-6 space-y-4">
+          <div className="w-full overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-neutral-800/80 shadow-lg">
+            <div className="relative aspect-[2/1] w-full">
+              <Image src={displayImage} alt={title} fill className="object-cover" />
             </div>
           </div>
-          <div className="prose max-w-none py-4 dark:prose-invert">{children}</div>
-          {siteMetadata.comments && (
-            <div className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300" id="comment">
-              <Comments slug={slug} />
-            </div>
-          )}
-          <footer>
-            <div className="flex flex-col text-sm font-medium sm:flex-row sm:justify-between sm:text-base">
-              {prev && prev.path && (
-                <div className="pt-4 xl:pt-8">
-                  <Link
-                    href={`/${prev.path}`}
-                    className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                    aria-label={`Previous post: ${prev.title}`}
-                  >
-                    &larr; {prev.title}
-                  </Link>
-                </div>
-              )}
-              {next && next.path && (
-                <div className="pt-4 xl:pt-8">
-                  <Link
-                    href={`/${next.path}`}
-                    className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-                    aria-label={`Next post: ${next.title}`}
-                  >
-                    {next.title} &rarr;
-                  </Link>
+
+          <div className="pt-4 space-y-2">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+              {title}
+            </h1>
+
+            <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={14} className="text-blue-500" />
+                <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
+              </div>
+              {readingTime && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                  <Clock size={14} className="text-amber-500" />
+                  <span>{readingTime.text}</span>
                 </div>
               )}
             </div>
-          </footer>
+          </div>
         </div>
+
+        {/* Prose Content */}
+        <div className="py-8 prose prose-neutral dark:prose-invert max-w-none prose-pre:bg-neutral-900 prose-pre:border prose-pre:border-neutral-800 prose-pre:rounded-2xl">
+          {children}
+        </div>
+
+        {/* Comments */}
+        {siteMetadata.comments && (
+          <div className="pt-6 pb-6 text-center text-gray-700 dark:text-gray-300 border-t border-neutral-200/60 dark:border-neutral-800/60" id="comment">
+            <Comments slug={slug} />
+          </div>
+        )}
+
+        {/* Next / Previous Navigation */}
+        {(next || prev) && (
+          <footer className="mt-8 pt-6 border-t border-neutral-200/60 dark:border-neutral-800/60 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {prev && prev.path ? (
+              <Link
+                href={`/${prev.path}`}
+                className="p-4 rounded-2xl border border-neutral-200/70 dark:border-neutral-800/70 bg-neutral-50/50 dark:bg-neutral-900/40 hover:bg-neutral-100 dark:hover:bg-neutral-800/70 transition-all"
+              >
+                <div className="text-xs font-semibold text-muted-foreground flex items-center gap-1 mb-1">
+                  <ChevronLeft size={13} />
+                  <span>Previous Guide</span>
+                </div>
+                <span className="text-sm font-bold text-foreground line-clamp-2">{prev.title}</span>
+              </Link>
+            ) : <div />}
+
+            {next && next.path ? (
+              <Link
+                href={`/${next.path}`}
+                className="p-4 rounded-2xl border border-neutral-200/70 dark:border-neutral-800/70 bg-neutral-50/50 dark:bg-neutral-900/40 hover:bg-neutral-100 dark:hover:bg-neutral-800/70 transition-all text-right"
+              >
+                <div className="text-xs font-semibold text-muted-foreground flex items-center justify-end gap-1 mb-1">
+                  <span>Next Guide</span>
+                  <ChevronRight size={13} />
+                </div>
+                <span className="text-sm font-bold text-foreground line-clamp-2">{next.title}</span>
+              </Link>
+            ) : <div />}
+          </footer>
+        )}
       </article>
     </SectionContainer>
-  )
+  );
 }

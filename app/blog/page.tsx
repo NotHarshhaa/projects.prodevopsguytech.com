@@ -27,7 +27,7 @@ export default function BlogPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-6xl mx-auto space-y-6 sm:space-y-8"
+      className="max-w-6xl xl:max-w-7xl 2xl:max-w-[1440px] mx-auto space-y-6 sm:space-y-8"
     >
       {/* Blog Hero Header */}
       <div className="relative pt-4 sm:pt-6 pb-6 border-b border-neutral-200/60 dark:border-neutral-800/60">
