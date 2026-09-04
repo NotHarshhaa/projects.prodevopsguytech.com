@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { formatDate } from 'pliny/utils/formatDate'
 import { CoreContent } from 'pliny/utils/contentlayer'
@@ -8,36 +8,15 @@ import type { Blog } from 'contentlayer/generated'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
-import { motion } from 'framer-motion'
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1],
-    },
-  }),
-};
-
-const tagVariants = {
-  initial: { opacity: 0, scale: 0.8 },
-  animate: { 
-    opacity: 1, 
-    scale: 1,
-    transition: {
-      duration: 0.2,
-    }
-  },
-};
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, X, Calendar, ArrowRight, LayoutGrid, List, Sparkles, RotateCcw, Clock } from 'lucide-react'
+import { Badge } from '@/components/components/ui/badge'
 
 interface PaginationProps {
   totalPages: number
   currentPage: number
 }
+
 interface ListLayoutProps {
   posts: CoreContent<Blog>[]
   title: string
@@ -45,46 +24,59 @@ interface ListLayoutProps {
   pagination?: PaginationProps
 }
 
+const POPULAR_BLOG_TOPICS = [
+  "All",
+  "DevOps",
+  "Terraform",
+  "Kubernetes",
+  "AWS",
+  "Docker",
+  "CI/CD",
+  "Security"
+]
+
 function Pagination({ totalPages, currentPage }: PaginationProps) {
   const pathname = usePathname()
   const segments = pathname.split('/')
-  const lastSegment = segments[segments.length - 1]
   const basePath = pathname
-    .replace(/^\//, '') // Remove leading slash
-    .replace(/\/page\/\d+$/, '') // Remove any trailing /page
+    .replace(/^\//, '')
+    .replace(/\/page\/\d+$/, '')
   const prevPage = currentPage - 1 > 0
   const nextPage = currentPage + 1 <= totalPages
 
   return (
-    <div className="space-y-2 pb-6 sm:pb-8 pt-4 sm:pt-6 md:space-y-5">
-      <nav className="flex justify-between">
-        {!prevPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
-            Previous Page
-          </button>
-        )}
-        {prevPage && (
-          <Link
-            href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
-            rel="prev"
-          >
-            Previous Page
-          </Link>
-        )}
-        <span>
-          {currentPage} of {totalPages}
+    <div className="pt-8 pb-6 flex items-center justify-between">
+      {prevPage ? (
+        <Link
+          href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
+          rel="prev"
+          className="inline-flex items-center gap-1 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-900/80 px-4 py-2 text-xs font-semibold text-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
+        >
+          &larr; Previous Page
+        </Link>
+      ) : (
+        <span className="opacity-40 text-xs font-medium cursor-not-allowed">
+          &larr; Previous Page
         </span>
-        {!nextPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
-            Next Page
-          </button>
-        )}
-        {nextPage && (
-          <Link href={`/${basePath}/page/${currentPage + 1}`} rel="next">
-            Next Page
-          </Link>
-        )}
-      </nav>
+      )}
+
+      <span className="text-xs text-muted-foreground font-medium">
+        Page <strong className="text-foreground">{currentPage}</strong> of <strong className="text-foreground">{totalPages}</strong>
+      </span>
+
+      {nextPage ? (
+        <Link
+          href={`/${basePath}/page/${currentPage + 1}`}
+          rel="next"
+          className="inline-flex items-center gap-1 rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-900/80 px-4 py-2 text-xs font-semibold text-foreground hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
+        >
+          Next Page &rarr;
+        </Link>
+      ) : (
+        <span className="opacity-40 text-xs font-medium cursor-not-allowed">
+          Next Page &rarr;
+        </span>
+      )}
     </div>
   )
 }
@@ -96,198 +88,319 @@ export default function ListLayout({
   pagination,
 }: ListLayoutProps) {
   const [searchValue, setSearchValue] = useState('')
-  const filteredBlogPosts = posts.filter((post) => {
-    const searchContent = post.title + post.summary + post.tags?.join(' ')
-    return searchContent.toLowerCase().includes(searchValue.toLowerCase())
-  })
+  const [selectedTopic, setSelectedTopic] = useState('All')
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
 
-  // If initialDisplayPosts exist, display it if no searchValue is specified
+  const filteredBlogPosts = useMemo(() => {
+    let result = posts
+
+    // 1. Topic filter
+    if (selectedTopic !== 'All') {
+      result = result.filter((post) =>
+        post.tags?.some((t) => t.toLowerCase() === selectedTopic.toLowerCase())
+      )
+    }
+
+    // 2. Search query filter
+    if (searchValue.trim() !== '') {
+      const q = searchValue.toLowerCase().trim()
+      result = result.filter((post) => {
+        const searchContent = (post.title || '') + (post.summary || '') + (post.tags?.join(' ') || '')
+        return searchContent.toLowerCase().includes(q)
+      })
+    }
+
+    return result
+  }, [posts, searchValue, selectedTopic])
+
+  const isFiltered = searchValue.trim() !== '' || selectedTopic !== 'All'
+
   const displayPosts =
-    initialDisplayPosts.length > 0 && !searchValue ? initialDisplayPosts : filteredBlogPosts
+    initialDisplayPosts.length > 0 && !isFiltered ? initialDisplayPosts : filteredBlogPosts
+
+  const handleResetFilters = () => {
+    setSearchValue('')
+    setSelectedTopic('All')
+  }
 
   return (
-    <>
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-2 pb-6 sm:pb-8 pt-4 sm:pt-6 md:space-y-3">
-          {title && (
-            <h1 className="text-2xl sm:text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-4xl md:leading-[3rem]">
-              {title}
-            </h1>
-          )}
-          <div className="relative">
-            {/* Search input with creative design */}
-            <div className="relative w-full max-w-lg">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-20"></div>
-              <div className="relative">
-                <input
-                  aria-label="Search articles"
-                  type="text"
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Search articles"
-                  className="block w-full rounded-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl px-3 sm:px-4 py-2.5 sm:py-3 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all duration-300"
-                />
-                <svg
-                  className="absolute right-3 top-3 h-5 w-5 text-gray-400 dark:text-gray-300"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
+    <div className="space-y-6 sm:space-y-8">
+      {/* Search & Topic Toolbar */}
+      <div className="relative rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/70 dark:bg-neutral-900/70 p-3 sm:p-4 backdrop-blur-xl shadow-sm space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground size-4" />
+            <input
+              aria-label="Search articles"
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search guides, tutorials, Terraform, Kubernetes..."
+              className="w-full rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-white/90 dark:bg-neutral-950/80 pl-10 pr-9 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all"
+            />
+            {searchValue && (
+              <button
+                onClick={() => setSearchValue('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                title="Clear search"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          {/* View Switcher: List vs Grid */}
+          <div className="inline-flex items-center rounded-xl border border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-100/70 dark:bg-neutral-800/70 p-1 gap-1 shrink-0 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              title="List View"
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                viewMode === 'list'
+                  ? 'bg-white dark:bg-neutral-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-foreground'
+              }`}
+            >
+              <List size={14} />
+              <span>List</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              title="Grid View"
+              className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-white dark:bg-neutral-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-foreground'
+              }`}
+            >
+              <LayoutGrid size={14} />
+              <span>Grid</span>
+            </button>
           </div>
         </div>
-        <div className="space-y-8 sm:space-y-12 py-6 sm:py-8">
-          {!filteredBlogPosts.length && 'No posts found.'}
-          {displayPosts.map((post, index) => {
-            const { path, date, title, summary, tags } = post
+
+        {/* Popular Topic Filter Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] font-semibold text-muted-foreground mr-1 flex items-center gap-1">
+            <Sparkles size={11} className="text-blue-500" />
+            Topics:
+          </span>
+          {POPULAR_BLOG_TOPICS.map((topic) => {
+            const isSelected = selectedTopic.toLowerCase() === topic.toLowerCase()
             return (
-              <motion.div
-                key={path}
-                custom={index}
-                initial="initial"
-                whileInView="animate"
-                viewport={{ once: true, margin: "-50px" }}
-                variants={fadeInUp}
-                className="group relative transform transition-all duration-500"
+              <button
+                key={topic}
+                onClick={() => setSelectedTopic(topic)}
+                className={`rounded-full px-3 py-0.5 text-xs font-medium transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-blue-600 text-white shadow-sm shadow-blue-500/30 scale-105"
+                    : "border border-neutral-200/80 dark:border-neutral-800/80 bg-white/60 dark:bg-neutral-950/60 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-foreground"
+                }`}
               >
-                {/* Card Container */}
-                <div className="relative">
-                  {/* Background Effects */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-500"></div>
-                  
-                  {/* Main Card Content */}
-                  <div className="relative flex flex-col space-y-3 sm:space-y-4 rounded-xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 sm:p-5 border border-gray-200/20 dark:border-gray-700/20 overflow-hidden">
-                    {/* Decorative Elements */}
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl transform group-hover:translate-x-10 transition-transform duration-700"></div>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-500/10 to-blue-500/10 rounded-full blur-2xl transform group-hover:-translate-x-8 transition-transform duration-700"></div>
-                    
-                    {/* Content Grid */}
-                    <div className="relative grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 sm:gap-5">
-                      {/* Date Column */}
-                      <div className="flex items-start">
-                        <time 
-                          className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 text-blue-600 dark:text-blue-300 shadow-lg shadow-blue-500/10 backdrop-blur-sm border border-blue-200/20 dark:border-blue-700/20"
-                          dateTime={date}
-                        >
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {formatDate(date, siteMetadata.locale)}
-                        </time>
-                      </div>
-
-                      {/* Content Column */}
-                      <div className="flex flex-col space-y-3 sm:space-y-4">
-                        {/* Title */}
-                        <Link 
-                          href={`/${path}`}
-                          className="group/title relative inline-block"
-                        >
-                          <span className="relative z-10 text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                            <span className="relative inline-block group-hover/title:text-transparent group-hover/title:bg-clip-text group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 dark:group-hover/title:from-blue-400 dark:group-hover/title:to-purple-400 transition-all duration-300">
-                              {title}
-                              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/title:scale-x-100 transition-transform duration-300"></span>
-                            </span>
-                          </span>
-                        </Link>
-
-                        {/* Summary */}
-                        <p className="prose max-w-none text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed text-sm md:text-[0.925rem] md:leading-[1.65]">
-                          {summary}
-                        </p>
-
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2">
-                          {tags?.map((tag) => (
-                            <motion.div
-                              key={tag}
-                              variants={tagVariants}
-                              initial="initial"
-                              whileInView="animate"
-                              viewport={{ once: true }}
-                              whileHover={{ scale: 1.05 }}
-                              className="transform-gpu"
-                            >
-                              <Tag text={tag} />
-                            </motion.div>
-                          ))}
-                        </div>
-
-                        {/* Read More Link */}
-                        <div className="pt-2 sm:pt-3">
-                          <Link
-                            href={`/${path}`}
-                            className="group/link inline-flex items-center space-x-2"
-                            aria-label={`Read "${title}"`}
-                          >
-                            <span className="relative text-sm md:text-[0.925rem] font-medium text-blue-500 dark:text-blue-400">
-                              <span className="relative z-10 group-hover/link:text-transparent group-hover/link:bg-clip-text group-hover/link:bg-gradient-to-r group-hover/link:from-blue-600 group-hover/link:to-purple-600 dark:group-hover/link:from-blue-400 dark:group-hover/link:to-purple-400 transition-all duration-300">
-                                Read more
-                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300"></span>
-                              </span>
-                            </span>
-                            <motion.svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 md:h-4 md:w-4 text-blue-500 dark:text-blue-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              initial={{ x: 0 }}
-                              animate={{ x: 3 }}
-                              transition={{
-                                repeat: Infinity,
-                                repeatType: "reverse",
-                                duration: 1,
-                              }}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13 7l5 5m0 0l-5 5m5-5H6"
-                              />
-                            </motion.svg>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Separator */}
-                {index < displayPosts.length - 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, scaleX: 0 }}
-                    whileInView={{ opacity: 1, scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ 
-                      delay: 0.3,
-                      duration: 0.7,
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 20
-                    }}
-                    className="w-full px-2 sm:px-4 mt-6 sm:mt-8"
-                  >
-                    <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent"></div>
-                  </motion.div>
-                )}
-              </motion.div>
+                {topic}
+              </button>
             )
           })}
         </div>
+
+        {/* Result Counter & Clear */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-neutral-200/50 dark:border-neutral-800/50">
+          <span>
+            Showing <strong className="text-foreground">{filteredBlogPosts.length}</strong> of{" "}
+            <strong className="text-foreground">{posts.length}</strong> articles
+          </span>
+
+          {isFiltered && (
+            <button
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer"
+            >
+              <RotateCcw size={11} />
+              Reset filters
+            </button>
+          )}
+        </div>
       </div>
-      {pagination && pagination.totalPages > 1 && !searchValue && (
+
+      {/* Articles Presentation */}
+      <AnimatePresence mode="wait">
+        {filteredBlogPosts.length === 0 ? (
+          /* Empty State */
+          <motion.div
+            key="empty-state"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-800 p-8 sm:p-12 text-center bg-white/50 dark:bg-neutral-900/50 backdrop-blur-sm"
+          >
+            <div className="mx-auto size-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mb-3">
+              <Search size={22} />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-1">No articles found</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4 leading-relaxed">
+              We couldn't find any articles matching your current search or topic filters.
+            </p>
+            <button
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-xs font-medium hover:bg-primary/90 transition-all shadow-sm"
+            >
+              <RotateCcw size={13} />
+              Clear all filters
+            </button>
+          </motion.div>
+        ) : viewMode === 'list' ? (
+          /* Detailed List View */
+          <motion.div
+            key="list-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4 sm:space-y-6"
+          >
+            {displayPosts.map((post, index) => {
+              const { path, date, title: postTitle, summary, tags, readingTime } = post
+              return (
+                <motion.article
+                  key={path}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                  whileHover={{ x: 3 }}
+                  className="group relative rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/80 dark:bg-neutral-900/80 p-5 sm:p-7 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="space-y-2.5 flex-1">
+                      {/* Meta: Date & Reading Time */}
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <time dateTime={date} className="inline-flex items-center gap-1 font-medium">
+                          <Calendar size={12} className="text-blue-500" />
+                          {formatDate(date, siteMetadata.locale)}
+                        </time>
+                        {readingTime && (
+                          <span className="inline-flex items-center gap-1">
+                            <Clock size={12} className="opacity-70" />
+                            {readingTime.text}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <Link href={`/${path}`} className="block group/title">
+                        <h3 className="text-xl sm:text-2xl font-bold text-foreground group-hover/title:text-primary transition-colors">
+                          {postTitle}
+                        </h3>
+                      </Link>
+
+                      {/* Summary */}
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {summary}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {tags?.map((tag) => (
+                          <Tag key={tag} text={tag} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 self-start md:self-center">
+                      <Link
+                        href={`/${path}`}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-800/60 px-4 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300"
+                      >
+                        <span>Read article</span>
+                        <ArrowRight size={13} />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.article>
+              )
+            })}
+          </motion.div>
+        ) : (
+          /* Bento Grid View */
+          <motion.div
+            key="grid-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+          >
+            {displayPosts.map((post, index) => {
+              const { path, date, title: postTitle, summary, tags, readingTime } = post
+              return (
+                <motion.article
+                  key={path}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                  whileHover={{ y: -4 }}
+                  className="group relative flex flex-col justify-between rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/90 dark:bg-neutral-900/90 p-5 sm:p-6 shadow-sm hover:shadow-xl backdrop-blur-xl transition-all duration-300 overflow-hidden h-full"
+                >
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+
+                  <div className="flex flex-col flex-1">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+                      <time dateTime={date} className="inline-flex items-center gap-1 font-medium">
+                        <Calendar size={12} className="text-blue-500" />
+                        {formatDate(date, siteMetadata.locale)}
+                      </time>
+                      {readingTime && (
+                        <span className="text-[11px] opacity-70">
+                          {readingTime.text}
+                        </span>
+                      )}
+                    </div>
+
+                    <Link href={`/${path}`} className="block group/title mb-2.5">
+                      <h3 className="text-lg font-bold text-foreground group-hover/title:text-primary transition-colors line-clamp-2">
+                        {postTitle}
+                      </h3>
+                    </Link>
+
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3 leading-relaxed mb-4 flex-1">
+                      {summary}
+                    </p>
+
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {tags?.slice(0, 3).map((tag) => (
+                        <Tag key={tag} text={tag} />
+                      ))}
+                      {tags && tags.length > 3 && (
+                        <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-[10px]">
+                          +{tags.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-neutral-200/60 dark:border-neutral-800/60 flex items-center justify-between">
+                    <Link
+                      href={`/${path}`}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:underline"
+                    >
+                      <span>Read article</span>
+                      <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </motion.article>
+              )
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Pagination (when not filtered) */}
+      {pagination && pagination.totalPages > 1 && !isFiltered && (
         <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
       )}
-    </>
+    </div>
   )
 }

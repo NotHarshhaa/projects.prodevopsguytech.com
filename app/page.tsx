@@ -4,306 +4,492 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { allCoreContent, sortPosts } from "pliny/utils/contentlayer";
 import { allBlogs } from "contentlayer/generated";
+import allProjects from "@/data/project.json";
 import { PulsatingButton } from "@/components/components/ui/pulsating-button";
 import Typewriter from "typewriter-effect";
 import { Button } from "@/components/components/ui/button";
-import { Separator } from "@/components/components/ui/separator";
-import { motion } from 'framer-motion';
-import Tag from '@/components/Tag';
-import { formatDate } from '../lib/utils';
+import { Badge } from "@/components/components/ui/badge";
+import { motion } from "framer-motion";
+import Tag from "@/components/Tag";
+import { formatDate } from "../lib/utils";
+import siteMetadata from "@/data/siteMetadata";
+import {
+  ArrowRight,
+  Terminal,
+  Cloud,
+  Cpu,
+  ShieldCheck,
+  GitBranch,
+  Sparkles,
+  BookOpen,
+  ExternalLink,
+  Github,
+  Check,
+  Copy,
+  Calendar,
+  Layers,
+  Rocket
+} from "lucide-react";
 
-const MAX_POSTS = 3; // Batasi jumlah postingan yang ditampilkan
+const MAX_POSTS = 3;
+const FEATURED_PROJECTS = allProjects.slice(0, 3);
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1],
-    },
-  }),
-};
+const TECH_ECOSYSTEM = [
+  { name: "AWS", category: "Cloud" },
+  { name: "Terraform", category: "IaC" },
+  { name: "Kubernetes", category: "Containers" },
+  { name: "Docker", category: "Containers" },
+  { name: "GitHub Actions", category: "CI/CD" },
+  { name: "ArgoCD", category: "GitOps" },
+  { name: "Prometheus", category: "Observability" },
+  { name: "Grafana", category: "Observability" },
+  { name: "Python", category: "Scripting" },
+  { name: "Linux", category: "OS" },
+];
 
-const tagVariants = {
-  initial: { opacity: 0, scale: 0.8 },
-  animate: { 
-    opacity: 1, 
-    scale: 1,
-    transition: {
-      duration: 0.2,
-    }
+const PILLARS = [
+  {
+    icon: Cloud,
+    title: "Cloud Infrastructure & IaC",
+    description: "Production-grade Terraform modules, AWS multi-tier architecture, and automated cloud deployments.",
+    color: "from-blue-500/20 to-cyan-500/20",
+    badge: "Terraform & AWS",
   },
-};
+  {
+    icon: Cpu,
+    title: "Kubernetes & Containers",
+    description: "Multi-node EKS cluster setups, Docker containerization, Helm charts, and microservices orchestration.",
+    color: "from-purple-500/20 to-indigo-500/20",
+    badge: "EKS & Docker",
+  },
+  {
+    icon: GitBranch,
+    title: "CI/CD & GitOps Pipelines",
+    description: "End-to-end automated pipelines using GitHub Actions, continuous delivery, and zero-downtime releases.",
+    color: "from-emerald-500/20 to-teal-500/20",
+    badge: "Automation",
+  },
+  {
+    icon: ShieldCheck,
+    title: "DevSecOps & Compliance",
+    description: "Trivy container scanning, automated security vulnerability assessments, and secure IAM policies.",
+    color: "from-rose-500/20 to-orange-500/20",
+    badge: "Security",
+  },
+];
 
 export default function Page() {
   const [startAnimation, setStartAnimation] = useState(false);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mulai animasi segera setelah komponen dimuat
     setStartAnimation(true);
   }, []);
 
-  // Ambil dan urutkan postingan
   const posts = allCoreContent(sortPosts(allBlogs));
-  const displayedPosts = posts.slice(0, MAX_POSTS); // Ambil 3 postingan terbaru
+  const displayedPosts = posts.slice(0, MAX_POSTS);
+
+  const handleCopyClone = (e: React.MouseEvent, codeUrl: string, slug: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(`git clone ${codeUrl}.git`);
+    setCopiedSlug(slug);
+    setTimeout(() => setCopiedSlug(null), 2000);
+  };
 
   return (
-    <div>
-      {/* Hero Section with Creative Design */}
-      <div className="relative h-[calc(100vh-10rem)] sm:h-[calc(100vh-14rem)] overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 from-blue-500/10 to-purple-500/10 dark:from-blue-900/20 dark:to-purple-900/20">
-          <div className="absolute inset-0 bg-grid-pattern opacity-10 animate-grid"></div>
+    <div className="space-y-16 sm:space-y-24">
+      {/* 1. HERO SECTION */}
+      <section className="relative overflow-hidden pt-6 sm:pt-10 pb-8 sm:pb-12">
+        {/* Background Gradients */}
+        <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+          <div className="h-[450px] w-[600px] rounded-full bg-gradient-to-tr from-blue-500/15 via-purple-500/15 to-pink-500/10 blur-3xl" />
+          <div className="absolute top-1/2 left-1/4 h-[300px] w-[300px] rounded-full bg-blue-600/10 blur-2xl" />
         </div>
 
-        {/* Main Content */}
-        <div className="relative h-full flex flex-col justify-center items-center px-2 sm:px-4">
-          {/* Floating Badge */}
+        <div className="relative flex flex-col items-center text-center px-4 max-w-4xl mx-auto">
+          {/* Status Pill */}
           <motion.div
-            initial={{ y: -20, opacity: 0 }}
+            initial={{ y: -15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mb-4 sm:mb-8"
+            transition={{ duration: 0.4 }}
+            className="mb-5 sm:mb-6"
           >
-            <Button 
-              variant="outline" 
-              className="rounded-full backdrop-blur-sm border-2 border-blue-500/20 dark:border-blue-400/20 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300"
+            <Link
+              href="/projects"
+              className="group inline-flex items-center gap-2 rounded-full border border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-900/80 px-4 py-1.5 text-xs sm:text-sm font-medium text-foreground backdrop-blur-md transition-all hover:border-blue-500/40 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 shadow-sm"
             >
-              <Link href="/projects" className="flex items-center gap-2">
-                <span className="animate-pulse w-2 h-2 rounded-full bg-blue-500"></span>
-                Explore More DevOps Resources
-              </Link>
-            </Button>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span>16+ Real-Time DevOps & Cloud Projects</span>
+              <ArrowRight size={13} className="text-blue-500 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </motion.div>
 
-          {/* Title with Gradient */}
-          <motion.h1 
-            initial={{ scale: 0.9, opacity: 0 }}
+          {/* Main Hero Headline */}
+          <motion.h1
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.7 }}
-            className="mb-4 sm:mb-6 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-4 sm:mb-6"
           >
-            ProDevOpsGuy Tech Community
+            Master Real-World{" "}
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+              Cloud DevOps
+            </span>{" "}
+            Engineering
           </motion.h1>
 
-          {/* Animated Typewriter */}
+          {/* Animated Typewriter Sub-header */}
           {startAnimation && (
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
+            <motion.div
+              initial={{ y: 15, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-center py-3 sm:py-4 mb-4 sm:mb-8 backdrop-blur-sm bg-white/5 dark:bg-black/5 rounded-xl px-4 sm:px-6"
+              transition={{ delay: 0.2 }}
+              className="mb-6 sm:mb-8 text-lg sm:text-2xl font-medium text-muted-foreground"
             >
               <Typewriter
                 options={{
                   strings: [
-                    "Cloud DevOps Engineer",
-                    "Content Creator/Blogger",
-                    "Automation Expert"
+                    "Production Kubernetes & AWS Architecture",
+                    "Automated CI/CD Pipelines with GitHub Actions",
+                    "Modular Infrastructure as Code with Terraform",
+                    "Hands-on DevSecOps & Security Automation"
                   ],
                   autoStart: true,
                   loop: true,
-                  wrapperClassName: "text-lg sm:text-2xl lg:text-3xl font-medium bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent",
+                  wrapperClassName: "bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent font-semibold",
                   cursorClassName: "text-purple-500 dark:text-purple-400",
-                  delay: 50,
-                  deleteSpeed: 20,
+                  delay: 45,
+                  deleteSpeed: 25,
                 }}
               />
             </motion.div>
           )}
 
-          {/* Action Button */}
-          <motion.div 
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="relative"
+          {/* Hero Subtitle Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-8 sm:mb-10"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-70 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-            <PulsatingButton className="relative">
-              <Link href="/blog" className="px-8 py-3">Explore All Projects</Link>
+            Explore end-to-end production pipelines, hands-on infrastructure as code, and practical Kubernetes tutorials built for modern cloud engineers.
+          </motion.p>
+
+          {/* Call-to-Actions */}
+          <motion.div
+            initial={{ y: 15, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+          >
+            <PulsatingButton className="rounded-2xl">
+              <Link href="/projects" className="px-6 py-2.5 flex items-center gap-2 font-medium">
+                <Rocket size={16} />
+                Explore Projects
+              </Link>
             </PulsatingButton>
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="rounded-2xl border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            >
+              <Link href="/blog" className="flex items-center gap-2">
+                <BookOpen size={16} className="text-blue-500" />
+                Read DevOps Guides
+              </Link>
+            </Button>
+          </motion.div>
+
+          {/* Tech Ecosystem Chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-12 sm:mt-16 w-full pt-8 border-t border-neutral-200/60 dark:border-neutral-800/60"
+          >
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-semibold">
+              Powering Modern Cloud Architectures
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {TECH_ECOSYSTEM.map((tech) => (
+                <span
+                  key={tech.name}
+                  className="rounded-full border border-neutral-200/70 dark:border-neutral-800/70 bg-white/60 dark:bg-neutral-900/60 px-3.5 py-1 text-xs font-medium text-neutral-700 dark:text-neutral-300 backdrop-blur-sm transition-all hover:scale-105 hover:border-blue-500/40 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  {tech.name}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      <div className="relative w-full max-w-6xl mx-auto px-2 sm:px-4 mb-8 sm:mb-12">
-        <div className="relative group">
-          {/* Background decorative elements */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-          <div className="absolute -inset-px bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl opacity-50 group-hover:opacity-60 transition-all duration-500"></div>
-          
-          {/* Main card */}
-          <div className="relative rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-0.5 shadow-2xl shadow-blue-500/10">
-            <div className="relative overflow-hidden rounded-[14px] p-4 sm:p-8">
-              {/* Animated gradient background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white/80 to-purple-50/50 dark:from-blue-950/50 dark:via-gray-900/80 dark:to-purple-950/50 animate-gradient-xy"></div>
-              
-              {/* Content wrapper */}
-              <div className="relative">
-                {/* Decorative elements */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-500/10 to-blue-500/10 rounded-full blur-2xl"></div>
-                
-                {/* Heading */}
-                <div className="relative">
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent pb-2">
-                    Latest DevOps Projects
-                  </h2>
-                  {/* Animated underline */}
-                  <div className="relative h-1 w-32">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-sm"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mix-blend-overlay"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* 2. VALUE PROPOSITION: DEVOPS PILLARS BENTO GRID */}
+      <section className="relative max-w-6xl mx-auto px-4">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <Badge variant="outline" className="rounded-full mb-3 px-3 py-1 text-xs border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/5">
+            Core Competencies
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-3">
+            Architected for Scalability & Reliability
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Every project and guide is created with industry production standards, security best practices, and clean automated design.
+          </p>
         </div>
-      </div>
 
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-        <div className="space-y-8 sm:space-y-12 py-4 sm:py-8">
-          {displayedPosts.map((post, index) => (
-            <motion.div
-              key={post.title}
-              custom={index}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, margin: "-50px" }}
-              variants={fadeInUp}
-              className="group relative transform transition-all duration-500"
-            >
-              {/* Card Container */}
-              <div className="relative">
-                {/* Background Effects */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-500"></div>
-                
-                {/* Main Card Content */}
-                <div className="relative flex flex-col space-y-3 sm:space-y-4 rounded-xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-4 sm:p-6 border border-gray-200/20 dark:border-gray-700/20 overflow-hidden">
-                  {/* Decorative Elements */}
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl transform group-hover:translate-x-10 transition-transform duration-700"></div>
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-500/10 to-blue-500/10 rounded-full blur-2xl transform group-hover:-translate-x-8 transition-transform duration-700"></div>
-                  
-                  {/* Content Grid */}
-                  <div className="relative grid grid-cols-1 md:grid-cols-[auto,1fr] gap-4 sm:gap-6">
-                    {/* Date Column */}
-                    <div className="flex items-start">
-                      <time 
-                        className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/40 dark:to-purple-900/40 text-blue-600 dark:text-blue-300 shadow-lg shadow-blue-500/10 backdrop-blur-sm border border-blue-200/20 dark:border-blue-700/20"
-                        dateTime={post.date}
-                      >
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        {formatDate(post.date)}
-                      </time>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          {PILLARS.map((pillar, idx) => {
+            const Icon = pillar.icon;
+            return (
+              <motion.div
+                key={pillar.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                whileHover={{ y: -4 }}
+                className="group relative rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/80 dark:bg-neutral-900/80 p-6 sm:p-8 backdrop-blur-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+              >
+                {/* Ambient Corner Light */}
+                <div className={`pointer-events-none absolute top-0 right-0 w-40 h-40 bg-gradient-to-br ${pillar.color} rounded-full blur-2xl transform group-hover:scale-125 transition-transform duration-500`} />
+
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="size-12 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <Icon size={24} />
                     </div>
-
-                    {/* Content Column */}
-                    <div className="flex flex-col space-y-3 sm:space-y-4">
-                      {/* Title */}
-                      <Link 
-                        href={`/blog/${post.slug}`}
-                        className="group/title relative inline-block"
-                      >
-                        <span className="relative z-10 text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                          <span className="relative inline-block group-hover/title:text-transparent group-hover/title:bg-clip-text group-hover/title:bg-gradient-to-r group-hover/title:from-blue-600 group-hover/title:to-purple-600 dark:group-hover/title:from-blue-400 dark:group-hover/title:to-purple-400 transition-all duration-300">
-                            {post.title}
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/title:scale-x-100 transition-transform duration-300"></span>
-                          </span>
-                        </span>
-                      </Link>
-
-                      {/* Summary */}
-                      <p className="prose max-w-none text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
-                        {post.summary}
-                      </p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2">
-                        {post.tags?.map((tag) => (
-                          <motion.div
-                            key={tag}
-                            variants={tagVariants}
-                            initial="initial"
-                            whileInView="animate"
-                            viewport={{ once: true }}
-                            whileHover={{ scale: 1.05 }}
-                            className="transform-gpu"
-                          >
-                            <Tag text={tag} />
-                          </motion.div>
-                        ))}
-                      </div>
-
-                      {/* Read More Link */}
-                      <div className="pt-3 sm:pt-4">
-                        <Link
-                          href={`/blog/${post.slug}`}
-                          className="group/link inline-flex items-center space-x-2"
-                          aria-label={`Read "${post.title}"`}
-                        >
-                          <span className="relative text-base font-medium text-blue-500 dark:text-blue-400">
-                            <span className="relative z-10 group-hover/link:text-transparent group-hover/link:bg-clip-text group-hover/link:bg-gradient-to-r group-hover/link:from-blue-600 group-hover/link:to-purple-600 dark:group-hover/link:from-blue-400 dark:group-hover/link:to-purple-400 transition-all duration-300">
-                              Read more
-                              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 transform origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300"></span>
-                            </span>
-                          </span>
-                          <motion.svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-blue-500 dark:text-blue-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            initial={{ x: 0 }}
-                            animate={{ x: 3 }}
-                            transition={{
-                              repeat: Infinity,
-                              repeatType: "reverse",
-                              duration: 1,
-                            }}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 7l5 5m0 0l-5 5m5-5H6"
-                            />
-                          </motion.svg>
-                        </Link>
-                      </div>
-                    </div>
+                    <Badge variant="secondary" className="rounded-full text-[11px] px-2.5 py-0.5 font-medium">
+                      {pillar.badge}
+                    </Badge>
                   </div>
+
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                    {pillar.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {pillar.description}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. FEATURED PROJECTS SECTION */}
+      <section className="relative max-w-6xl mx-auto px-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-10 pb-4 border-b border-neutral-200/60 dark:border-neutral-800/60">
+          <div>
+            <Badge variant="outline" className="rounded-full mb-2 px-3 py-1 text-xs border-purple-500/30 text-purple-600 dark:text-purple-400 bg-purple-500/5">
+              Production Showcase
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+              Featured DevOps Projects
+            </h2>
+          </div>
+          <Link
+            href="/projects"
+            className="group inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            <span>View all 16 projects</span>
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+          {FEATURED_PROJECTS.map((proj, idx) => (
+            <motion.div
+              key={proj.slug}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="group relative flex flex-col justify-between rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/90 dark:bg-neutral-900/90 p-5 sm:p-6 shadow-sm hover:shadow-xl backdrop-blur-xl transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                    {proj.name}
+                  </h3>
+                  <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold">
+                    {proj.type || "Personal"}
+                  </span>
+                </div>
+
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4">
+                  {proj.description}
+                </p>
+
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {proj.technologies.slice(0, 3).map((tech) => (
+                    <Badge key={tech} variant="outline" className="rounded-full px-2.5 py-0.5 text-[11px]">
+                      {tech}
+                    </Badge>
+                  ))}
+                  {proj.technologies.length > 3 && (
+                    <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-[10px]">
+                      +{proj.technologies.length - 3}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
-              {/* Separator */}
-              {index < displayedPosts.length - 1 && (
-                <motion.div
-                  initial={{ opacity: 0, scaleX: 0 }}
-                  whileInView={{ opacity: 1, scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ 
-                    delay: 0.3,
-                    duration: 0.7,
-                    type: "spring",
-                    stiffness: 100,
-                    damping: 20
-                  }}
-                  className="w-full px-2 sm:px-4 mt-8 sm:mt-12"
+              <div className="pt-3 border-t border-neutral-200/60 dark:border-neutral-800/60 flex items-center justify-between gap-2">
+                <Link
+                  href={proj.code || "https://github.com/NotHarshhaa"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-primary transition-colors"
                 >
-                  <Separator className="my-8 sm:my-12" />
-                </motion.div>
-              )}
+                  <Github size={13} />
+                  <span>GitHub</span>
+                  <ExternalLink size={10} className="opacity-60" />
+                </Link>
+
+                {proj.code && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopyClone(e, proj.code!, proj.slug)}
+                    title="Copy git clone"
+                    className="inline-flex items-center gap-1 rounded-full border border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-100/70 dark:bg-neutral-800/70 px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all cursor-pointer"
+                  >
+                    {copiedSlug === proj.slug ? (
+                      <>
+                        <Check size={11} className="text-emerald-500" />
+                        <span className="text-emerald-500 font-semibold">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={11} className="opacity-70" />
+                        <span>Clone</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* 4. LATEST ARTICLES & TUTORIALS */}
+      <section className="relative max-w-6xl mx-auto px-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-10 pb-4 border-b border-neutral-200/60 dark:border-neutral-800/60">
+          <div>
+            <Badge variant="outline" className="rounded-full mb-2 px-3 py-1 text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">
+              Knowledge Base
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+              Latest Guides & Tutorials
+            </h2>
+          </div>
+          <Link
+            href="/blog"
+            className="group inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            <span>View all articles</span>
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        <div className="space-y-4 sm:space-y-5">
+          {displayedPosts.map((post, idx) => (
+            <motion.article
+              key={post.slug}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              whileHover={{ x: 4 }}
+              className="group relative rounded-2xl border border-neutral-200/60 dark:border-neutral-800/60 bg-white/80 dark:bg-neutral-900/80 p-5 sm:p-7 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <time dateTime={post.date} className="inline-flex items-center gap-1 font-medium">
+                      <Calendar size={12} className="text-blue-500" />
+                      {formatDate(post.date)}
+                    </time>
+                  </div>
+
+                  <Link href={`/blog/${post.slug}`} className="block group/title">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground group-hover/title:text-primary transition-colors">
+                      {post.title}
+                    </h3>
+                  </Link>
+
+                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {post.summary}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {post.tags?.map((tag) => (
+                      <Tag key={tag} text={tag} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="shrink-0 self-start md:self-center">
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200/80 dark:border-neutral-800/80 bg-neutral-50 dark:bg-neutral-800/60 px-4 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300"
+                  >
+                    <span>Read Guide</span>
+                    <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. COMMUNITY CTA SECTION */}
+      <section className="relative max-w-6xl mx-auto px-4 pb-12">
+        <div className="relative rounded-3xl border border-neutral-200/60 dark:border-neutral-800/60 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 p-8 sm:p-12 text-center backdrop-blur-2xl overflow-hidden shadow-lg">
+          <div className="pointer-events-none absolute -top-24 -left-24 size-64 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 size-64 rounded-full bg-purple-500/20 blur-3xl" />
+
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex size-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 text-white items-center justify-center shadow-md mb-2">
+              <Sparkles size={26} />
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+              Join the ProDevOpsGuy Community
+            </h2>
+
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Connect with fellow engineers, star our open-source repositories on GitHub, and stay ahead with real-world DevOps practices.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild size="lg" className="rounded-2xl shadow-md">
+                <Link href={siteMetadata.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <Github size={16} />
+                  Star on GitHub
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="rounded-2xl bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm">
+                <Link href="/about" className="flex items-center gap-2">
+                  <span>About ProDevOpsGuy</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
